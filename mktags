@@ -1,0 +1,146 @@
+#!/bin/bash
+
+useageInfo() {
+	echo
+	echo "Usage: $0 SUB_COMMAND [MCU_NAME]"
+	echo "1. SUB_COMMAND:"
+	echo "    build: build the cscope database for MCU_NAME"
+	echo "    clean: no need MCU_NAME, clean the old cscope database"
+	echo "    help: no need MCU_NAME, show the help tips"
+	echo "    info: show the infomation of MCU_NAME"
+	echo "2. MCU_NAME:"
+	echo "    rx21a -> renesas RX mcu"
+	echo "    efm32jg -> Silicon labs efm32 mcu"
+	echo "Example:"
+	echo "    $0 build efm32jg"
+	echo "    This can build cscope database at current dir for efm32jg"
+	echo
+}
+
+mcuInfo() {
+	echo "The MCU infomation of $1:"
+	echo
+	case $1 in
+		"RX21A" | "rx21a" )
+			echo "Microcontroller incorporating a 24-bit ΔΣ A/D converter for measuring "
+			echo "instruments including smart meters. The RX21A group is the product that "
+			echo "24-bit Delta-sigma ADC is built in for measuring instruments such as a "
+			echo "smart meter. PGA (Programmable Gain Amp) is built in Delta-sigma ADC, "
+			echo "which is possible to amplify analog signal at most 64 times. The RX21A "
+			echo "group has peripheral functions with special features, such as RTC which"
+			echo "enables Time capture on event-signal input through external pins and "
+			echo "DEU (Data Encryption Unit) which enables to use Encryption/decryption"
+			echo "functions of the AES standard."
+			;;
+		"EFM32JG" | "efm32jg" )
+			echo "The EFM32JG1B100F256IM32 is an ARM Cortex-M3 based microcontroller (MCU)"
+			echo "with speeds up to 40 MHz and is part of the Jade Gecko family of energy "
+			echo "friendly devices. Built on top of a low-power platform that includes "
+			echo "innovative low energy techniques, fast wake-up times and energy saving "
+			echo "modes the EFM32JG1B100F256IM32 is ideal for energy sensitive applications."
+			echo " In addition, this device includes 256 kB Flash, 32 kB RAM, 24 Dig I/O Pins, "
+			echo "2 x 16-bit Timers and multiple communication interfaces. "
+			;;
+	esac
+	echo
+}
+
+listEfm32Sources() {
+    echo "---> Listing sources for EFM32JG ..."
+	
+    find	"/Applications/Simplicity Studio.app/Contents/Eclipse/developer/toolchains/gnu_arm/4.9_2015q3/arm-none-eabi/include" 	\
+			-path "/Applications/Simplicity Studio.app/Contents/Eclipse/developer/toolchains/gnu_arm/4.9_2015q3/arm-none-eabi/include/c++" -prune -o	\
+        	-type f -name "*.[chsS]" -print > cscope.tmp
+
+	find	"/Applications/Simplicity Studio.app/Contents/Eclipse/developer/sdks/gecko_sdk_suite/v1.1/platform/emlib/inc"			\
+			"/Applications/Simplicity Studio.app/Contents/Eclipse/developer/sdks/gecko_sdk_suite/v1.1/platform/CMSIS/Include"		\
+			"/Applications/Simplicity Studio.app/Contents/Eclipse/developer/sdks/gecko_sdk_suite/v1.1/platform/Device/SiliconLabs/EFM32JG1B/Include"	\
+			"/Applications/Simplicity Studio.app/Contents/Eclipse/developer/sdks/gecko_sdk_suite/v1.1/hardware/kit/common/bsp"		\
+			"/Applications/Simplicity Studio.app/Contents/Eclipse/developer/sdks/gecko_sdk_suite/v1.1/hardware/kit/common/drivers"	\
+			"."	\
+        	-type f -name "*.[chsS]" -print >> cscope.tmp
+}
+
+listRxSources() {
+    echo "---> Listing sources for RX mcu ..."
+
+	find	"/Users/smslit/Public/e2_studio/RX/2_4_1/include"			\
+			"."	\
+        	-type f -name "*.[chsS]" -print > cscope.tmp
+}
+
+listSources() {
+	case $1 in
+		"RX21A" | "rx21a" )
+			listRxSources
+			;;
+		"EFM32JG" | "efm32jg" )
+			listEfm32Sources
+			;;
+	esac
+}
+
+create_cscope_db() {
+	#因为目录中包含空格，所以需要将生成的文件索引中每行文件路径放到双引号中
+	sed 's/^/"/;s/$/"/' cscope.tmp > cscope.files
+
+    echo "---> Creating cscope DB..."
+    cscope -k -b -q -R -i cscope.files
+}
+
+create_ctags_db() {
+    echo "---> Creating CTags DB..."
+    ctags -L cscope.tmp
+}
+
+cleanOldDatabase() {
+	find . -name "cscope.*" | xargs rm -v
+	find . \
+		-path ".git" -prune -o  \
+   		-type f -name "tags" | xargs rm -v 
+}
+
+cleanup() {
+    echo "---> Removing garbage..."
+    rm -f cscope.files cscope.tmp
+}
+
+# begin here
+if [ ! $# == 2 ]; then
+	if [ ! $# == 1 ]; then
+		useageInfo
+		exit
+	fi
+	case "$1" in
+		"help" )
+			useageInfo
+			;;
+		"clean" )
+			cleanOldDatabase
+			;;	
+		"info" | "build" )
+			useageInfo
+			;;
+	esac
+	exit
+fi
+
+case "$1" in
+	"info" )
+		mcuInfo $2
+		;;
+	"build" )
+		listSources $2
+		# 因为ctags读取文件索引的时候会对每一行加上引号解决路径包含空格的问题，所以建立ctags库应该直接用加引号前的文件cscope.tmp
+		create_ctags_db
+		create_cscope_db
+		cleanup
+		;;
+	"help" )
+		useageInfo
+		;;
+	"clean" )
+		cleanOldDatabase
+		;;	
+esac
+
