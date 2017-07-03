@@ -64,7 +64,7 @@ listEfm32Sources() {
 listRxSources() {
     echo "---> Listing sources for RX mcu ..."
 
-	find	"/Users/smslit/Public/e2_studio/RX/2_4_1/include"			\
+	find	"$HOME/Public/e2_studio/RX/2_4_1/include"			\
 			"."	\
         	-type f -name "*.[chsS]" -print > cscope.tmp
 }
