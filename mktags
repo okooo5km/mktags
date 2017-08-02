@@ -46,8 +46,8 @@ mcuInfo() {
 }
 
 initPath() {
-	EFM32_DEV_PATH="/Applications/Simplicity Studio.app/Contents/Eclipse/developer"
-	CCRX_PATH="$HOME/Public/e2_studio/RX/2_4_1"
+	EFM32_DEV_PATH="/mnt/c/SiliconLabs/SimplicityStudio/v4/developer"
+	CCRX_PATH="/mnt/c/Program Files (x86)/Renesas/RX/2_4_1"
 }
 
 listEfm32Sources() {
