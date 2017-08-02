@@ -45,18 +45,23 @@ mcuInfo() {
 	echo
 }
 
+initPath() {
+	EFM32_DEV_PATH="/Applications/Simplicity Studio.app/Contents/Eclipse/developer"
+	CCRX_PATH="$HOME/Public/e2_studio/RX/2_4_1"
+}
+
 listEfm32Sources() {
     echo "---> Listing sources for EFM32JG ..."
 	
-    find	"/Applications/Simplicity Studio.app/Contents/Eclipse/developer/toolchains/gnu_arm/4.9_2015q3/arm-none-eabi/include" 	\
-			-path "/Applications/Simplicity Studio.app/Contents/Eclipse/developer/toolchains/gnu_arm/4.9_2015q3/arm-none-eabi/include/c++" -prune -o	\
+    find	"$EFM32_DEV_PATH/toolchains/gnu_arm/4.9_2015q3/arm-none-eabi/include" 	\
+			-path "$EFM32_DEV_PATH/toolchains/gnu_arm/4.9_2015q3/arm-none-eabi/include/c++" -prune -o	\
         	-type f -name "*.[chsS]" -print > cscope.tmp
 
-	find	"/Applications/Simplicity Studio.app/Contents/Eclipse/developer/sdks/gecko_sdk_suite/v1.1/platform/emlib/inc"			\
-			"/Applications/Simplicity Studio.app/Contents/Eclipse/developer/sdks/gecko_sdk_suite/v1.1/platform/CMSIS/Include"		\
-			"/Applications/Simplicity Studio.app/Contents/Eclipse/developer/sdks/gecko_sdk_suite/v1.1/platform/Device/SiliconLabs/EFM32JG1B/Include"	\
-			"/Applications/Simplicity Studio.app/Contents/Eclipse/developer/sdks/gecko_sdk_suite/v1.1/hardware/kit/common/bsp"		\
-			"/Applications/Simplicity Studio.app/Contents/Eclipse/developer/sdks/gecko_sdk_suite/v1.1/hardware/kit/common/drivers"	\
+	find	"$EFM32_DEV_PATH/sdks/gecko_sdk_suite/v1.1/platform/emlib/inc"			\
+			"$EFM32_DEV_PATH/sdks/gecko_sdk_suite/v1.1/platform/CMSIS/Include"		\
+			"$EFM32_DEV_PATH/sdks/gecko_sdk_suite/v1.1/platform/Device/SiliconLabs/EFM32JG1B/Include"	\
+			"$EFM32_DEV_PATH/sdks/gecko_sdk_suite/v1.1/hardware/kit/common/bsp"		\
+			"$EFM32_DEV_PATH/sdks/gecko_sdk_suite/v1.1/hardware/kit/common/drivers"	\
 			"."	\
         	-type f -name "*.[chsS]" -print >> cscope.tmp
 }
@@ -64,7 +69,7 @@ listEfm32Sources() {
 listRxSources() {
     echo "---> Listing sources for RX mcu ..."
 
-	find	"$HOME/Public/e2_studio/RX/2_4_1/include"			\
+	find	"$CCRX_PATH/include"			\
 			"."	\
         	-type f -name "*.[chsS]" -print > cscope.tmp
 }
@@ -130,6 +135,7 @@ case "$1" in
 		mcuInfo $2
 		;;
 	"build" )
+		initPath
 		listSources $2
 		# 因为ctags读取文件索引的时候会对每一行加上引号解决路径包含空格的问题，所以建立ctags库应该直接用加引号前的文件cscope.tmp
 		create_ctags_db

@@ -6,7 +6,8 @@ mktags是一个shell脚本编写的工具，可以帮助生成mcu工程完整的
 
 ```
 git clone https://github.com/smslit/mktags /tmp/mktags
-(sudo)cp /tmp/mktags/mktags /usr/local/bin
+cd /tmp/mktags
+sudo ./install.sh
 ```
 
 ### 使用
