@@ -11,6 +11,7 @@ useageInfo() {
 	echo "2. MCU_NAME:"
 	echo "    rx21a -> renesas RX mcu"
 	echo "    efm32jg -> Silicon labs efm32 mcu"
+	echo "    stm32f1 -> ST stm32f1xx mcu" 
 	echo "Example:"
 	echo "    $0 build efm32jg"
 	echo "    This can build cscope database at current dir for efm32jg"
@@ -41,13 +42,30 @@ mcuInfo() {
 			echo " In addition, this device includes 256 kB Flash, 32 kB RAM, 24 Dig I/O Pins, "
 			echo "2 x 16-bit Timers and multiple communication interfaces. "
 			;;
+		"STM32F1" | "stm32f1" )
+            echo "ST’s STM32 F1 series of mainstream MCUs covers the needs of a large variety"
+            echo " of applications in the industrial, medical and consumer markets. With this"
+            echo " series, ST has pioneered the world of ARM® Cortex™-M microcontrollers and "
+            echo "set a milestone in the history of embedded applications. High performance "
+            echo "with first-class peripherals and low-power, low-voltage operation is paired"
+            echo " with a high level of integration at accessible prices with a simple "
+            echo "architecture and easy-to-use tools."
+            ;;
 	esac
 	echo
 }
 
 initPath() {
-	EFM32_DEV_PATH="/Applications/Simplicity Studio.app/Contents/Eclipse/developer"
-	CCRX_PATH="$HOME/Public/e2_studio/RX/2_4_1"
+	case $1 in
+		"RX21A" | "rx21a" )
+            CCRX_PATH="$HOME/Public/e2_studio/RX/2_4_1"
+			;;
+		"EFM32JG" | "efm32jg" )
+            EFM32_DEV_PATH="/Applications/Simplicity Studio.app/Contents/Eclipse/developer"
+			;;
+		"STM32F1" | "stm32f1" )
+			;;
+	esac
 }
 
 listEfm32Sources() {
@@ -74,6 +92,13 @@ listRxSources() {
         	-type f -name "*.[chsS]" -print > cscope.tmp
 }
 
+listSTM32F1Sources() {
+    echo "---> Listing sources for stm32f1 series mcu ..."
+
+	find	"."	\
+        	-type f -name "*.[chsS]" -print > cscope.tmp
+}
+
 listSources() {
 	case $1 in
 		"RX21A" | "rx21a" )
@@ -81,6 +106,9 @@ listSources() {
 			;;
 		"EFM32JG" | "efm32jg" )
 			listEfm32Sources
+			;;
+		"STM32F1" | "stm32f1" )
+			listSTM32F1Sources
 			;;
 	esac
 }
